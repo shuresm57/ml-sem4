@@ -1,15 +1,5 @@
-#set text(16pt, font: "New Computer Modern")
-#set par(justify: true, leading: 0.58em)
-#set enum(numbering: "I.")
-#set page(header: [
-  #set text(size: 12pt)
-  _Valdemar Støvring Storgaard_
-  #h(1fr)
-  Erhvervsakademi København
-])
-
-#set page(numbering: "- 1 -")
-#show link: it => underline(text(it, blue))
+#import "config.typ": *
+#show: apply-styling
 
 = ML - Week 1
 
@@ -109,7 +99,7 @@ prediction = model.predict(np.array([[0.38, 0.51, 0, 1, 0, 1, 0]]))
 # Evaluate model performance
 loss, accuracy = model.evaluate(X, y)
 ```
-#pagebreak()
+
 
 == Key Takeaways
 

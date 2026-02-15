@@ -1,15 +1,5 @@
-#set text(16pt, font: "New Computer Modern")
-#set par(justify: true, leading: 0.58em)
-#set enum(numbering: "I.")
-#set page(header: [
-  #set text(size: 12pt)
-  _Valdemar Støvring Storgaard_
-  #h(1fr)
-  Erhvervsakademi København
-])
-
-#set page(numbering: "- 1 -")
-#show link: it => underline(text(it, blue))
+#import "config.typ": *
+#show: apply-styling
 
 = ML - Week 2
 
@@ -126,7 +116,6 @@ Predicts wine quality as either good or bad, based on chemical properties.
 *Features*: Chemical measurements like acidity, sugar content, alcohol perc, etc
 
 *Target*: Binary quality rating (0 = bad, 1 = good)
-#pagebreak()
 
 *Model Architecture*
 
@@ -166,7 +155,7 @@ df = df.drop(columns=['RowNumber', 'CustomerId', 'Surname'])
 ```
 
 These columns don't help predict behavior, they are just identifiers.
-#pagebreak()
+
 
 *One-Hot Encoding*
 
@@ -215,7 +204,7 @@ new_customer = {
     # ... etc
 }
 ```
-#pagebreak()
+
 *Process*:
 
 1. Create customer profile as dictionary
@@ -274,11 +263,6 @@ predictions = model.predict(X_test)
 predicted_classes = np.argmax(predictions, axis=1)
 ```
 
-**Example output:**
-```
-predictions = [[0.01, 0.05, 0.10, 0.60, 0.15, 0.05, 0.03, 0.01]]
-                 0     1     2     3     4     5     6     7
-```
 
 - *np.argmax*: Finds the index with highest Probability
 - In this case: 3 (60% probability of grade 3)
@@ -296,7 +280,7 @@ new_student = np.array([[22, 3, 3, 1, 2, 2, 1, ...]])  # 30 features
 4. Predict
 5. Use ``` np.argmax ```to get the most likely grade.
 
-#pagebreak()
+
 
 *Key Differences: Binary vs Multi-Class*
 
