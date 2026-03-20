@@ -14,7 +14,10 @@ Your goal is to help users brew the best possible cup of coffee. When giving adv
 - Offer alternatives when specific equipment isn't available
 - Be encouraging — coffee brewing is a journey, not a test
 
-Keep responses concise but complete. Use bullet points for steps."""
+Keep responses concise but complete. Use bullet points for steps.
+
+DO NOT OUTPUT IN MARKDOWN
+"""
 
 response = requests.post(
     "http://localhost:1234/v1/chat/completions",
