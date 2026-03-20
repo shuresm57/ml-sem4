@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coffee Brewing Assistant</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: Georgia, serif;
+      background: #2c1a0e;
+      color: #f5e6d3;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    h1 {
+      margin: 20px 0 4px;
+      font-size: 1.8rem;
+      color: #d4a96a;
+      letter-spacing: 1px;
+    }
+
+    p.subtitle {
+      color: #a07850;
+      font-size: 0.9rem;
+      margin-bottom: 20px;
+    }
+
+    #chat {
+      width: 100%;
+      max-width: 680px;
+      background: #3d2410;
+      border-radius: 12px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      height: 60vh;
+      overflow-y: auto;
+      border: 1px solid #6b3d1e;
+    }
+
+    .msg {
+      max-width: 85%;
+      padding: 10px 14px;
+      border-radius: 10px;
+      line-height: 1.5;
+      font-size: 0.95rem;
+      white-space: pre-wrap;
+    }
+
+    .msg.user {
+      align-self: flex-end;
+      background: #6b3d1e;
+      color: #f5e6d3;
+      border-bottom-right-radius: 2px;
+    }
+
+    .msg.assistant {
+      align-self: flex-start;
+      background: #4e2c12;
+      color: #f0dfc8;
+      border-bottom-left-radius: 2px;
+    }
+
+    .msg.thinking {
+      align-self: flex-start;
+      color: #a07850;
+      font-style: italic;
+      background: none;
+      padding: 4px 0;
+    }
+
+    #input-row {
+      display: flex;
+      gap: 10px;
+      width: 100%;
+      max-width: 680px;
+      margin-top: 14px;
+    }
+
+    #user-input {
+      flex: 1;
+      padding: 12px 16px;
+      border-radius: 8px;
+      border: 1px solid #6b3d1e;
+      background: #4e2c12;
+      color: #f5e6d3;
+      font-size: 1rem;
+      font-family: Georgia, serif;
+      outline: none;
+    }
+
+    #user-input::placeholder { color: #a07850; }
+    #user-input:focus { border-color: #d4a96a; }
+
+    button {
+      padding: 12px 20px;
+      background: #c47d2a;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    button:hover { background: #d4a96a; }
+    button:disabled { background: #6b3d1e; cursor: not-allowed; }
+  </style>
+</head>
+<body>
+
+  <h1>☕ Coffee Brewing Assistant</h1>
+  <p class="subtitle">Ask me anything about brewing the perfect cup</p>
+
+  <div id="chat">
+    <div class="msg assistant">Hello! I'm your coffee brewing expert. Ask me about espresso ratios, pour-over techniques, grind sizes, water temperature — anything coffee. ☕</div>
+  </div>
+
+  <div id="input-row">
+    <input id="user-input" type="text" placeholder="e.g. How do I make a good V60 pour-over?" autofocus />
+    <button id="send-btn" onclick="send()">Send</button>
+  </div>
+
+  <script>
+    const SYSTEM_PROMPT = `You are an expert coffee brewing assistant with deep knowledge of:
+- Brewing methods: espresso, pour-over (V60, Chemex, Kalita), French press, AeroPress, cold brew, Moka pot
+- Grind sizes and their effect on extraction
+- Water temperature, ratios, and brew times
+- Coffee origins, roast levels, and flavor profiles
+- Troubleshooting under/over-extraction
+Keep answers practical, concise, and friendly. Use specific numbers (grams, °C, seconds) when relevant.`;
+
+    const history = [{ role: "system", content: SYSTEM_PROMPT }];
+    const chat = document.getElementById("chat");
+    const input = document.getElementById("user-input");
+    const btn = document.getElementById("send-btn");
+
+    input.addEventListener("keydown", e => { if (e.key === "Enter" && !e.shiftKey) send(); });
+
+    function addMsg(role, text) {
+      const div = document.createElement("div");
+      div.className = "msg " + role;
+      div.textContent = text;
+      chat.appendChild(div);
+      chat.scrollTop = chat.scrollHeight;
+      return div;
+    }
+
+    async function send() {
+      const text = input.value.trim();
+      if (!text) return;
+
+      input.value = "";
+      btn.disabled = true;
+
+      addMsg("user", text);
+      history.push({ role: "user", content: text });
+
+      const thinking = addMsg("thinking", "Brewing an answer...");
+
+      try {
+        const res = await fetch("https://d917-88-212-81-134.ngrok-free.app/v1/chat/completions", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "ngrok-skip-browser-warning": "true" },
+          body: JSON.stringify({
+            model: "local-model",
+            messages: history,
+            temperature: 0.7
+          })
+        });
+
+        const data = await res.json();
+        const reply = data.choices[0].message.content;
+
+        thinking.remove();
+        addMsg("assistant", reply);
+        history.push({ role: "assistant", content: reply });
+
+      } catch (err) {
+        thinking.remove();
+        addMsg("thinking", "⚠ Could not reach the server. Is ngrok still running and LM Studio active?");
+      }
+
+      btn.disabled = false;
+      input.focus();
+    }
+  </script>
+
+</body>
+</html>
