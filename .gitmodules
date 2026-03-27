@@ -1,0 +1,3 @@
+[submodule "basicspring"]
+	path = basicspring
+	url = https://github.com/shuresm57/basicspring
